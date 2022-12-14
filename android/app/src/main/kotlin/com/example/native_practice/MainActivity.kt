@@ -1,4 +1,8 @@
 package com.example.native_practice
+
+import android.os.Bundle
+import io.flutter.app.FlutterActivity
+import io.flutter.plugin.common.MethodChannel
 // 다음으로 배터리 레벨을 가져오기 위해 안드로이드 배터리 API 를 사용하는 안드로이드 Kotlin 코드를 추가합니다.
 // 해당 코드는 네이티브 안드로이드 앱에서 사용하던 것과 완전히 같습니다
 
@@ -13,7 +17,7 @@ import android.os.Build.VERSION_CODES
 import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity: FlutterActivity() {
-  private val CHANNEL = "samples.flutter.dev/battery"
+  private val CHANNEL = "samples.flutter.dev/battery" // main 에 있는 채널 이름과 동일해야 한다
 
   override fun onCreate(savedInstanceState: Bundle?) {
     // onCreate 메서드 안에서 MethodChannel 을 만들고 setMethodCallHandler 를 호출하세요
@@ -39,25 +43,23 @@ class MainActivity: FlutterActivity() {
 
 
   // 아래 코드를 액티비티 클래스의 onCreate() 메서드 아래에 새로운 메서드로 작성해주세요.
-  private int getBatteryLevel() {
-  int batteryLevel = -1;
-  if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-    BatteryManager batteryManager = (BatteryManager) getSystemService(BATTERY_SERVICE);
-    batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-  } else {
-    Intent intent = new ContextWrapper(getApplicationContext()).
-        registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-    batteryLevel = (intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100) /
-        intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-  }
+    private fun getBatteryLevel(): Int {
+    val batteryLevel: Int
+    if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+      val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+      batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+    } else {
+      val intent = ContextWrapper(applicationContext).registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+      batteryLevel = intent!!.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100 / intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+    }
 
-  return batteryLevel;
-}
+    return batteryLevel
+  }
 
  // 마지막으로 먼저 추가한 onMethodCall() 메서드를 완성합니다.
  // 사용할 플랫폼 메서드는 getBatteryLevel() 이며, 이는 call 인자 안에서 가져와 테스트해볼 수 있습니다.
  // 이 플랫폼 메서드는 단순히 이전 단계에서 작성한 Android 코드를 호출합니다.
- // 그리고 response 매개변수를 통해 성고오가 에러를 응답으로 돌려줍니다
+ // 그리고 response 매개변수를 통해 성공과 에러를 응답으로 돌려줍니다
  // 이 플랫폼 메서드는 전 단계에서 작성한 Android 코드를 호출하며, resposne 인자를 통해 성공과 에러를 응답으로 돌려줍니다.
  // 만약 알 수 없는 메서드가 호출된다면, 예외처리가 필요합니다.
 
