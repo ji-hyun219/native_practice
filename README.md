@@ -40,3 +40,44 @@ override fun onMethodCall(call: MethodCall, result: Result) {
   }
 }
 ```
+
+### Kotlin
+
+https://developer.android.com/kotlin/common-patterns?hl=ko
+
+#### 상속
+
+```kotlin
+class LoginFragment : Fragment()
+```
+
+: 를 사용하여 상속을 표시한다.  
+이 클래스 선언에서 LoginFragment는 슈퍼클래스 Fragment의 생성자 호출을 담당힌다.
+
+#### null 허용 여부 및 초기화
+
+Kotlin에서는 객체를 선언할 때 객체의 속성을 초기화해야 합니다. 그러면 클래스의 인스턴스를 가져올 때 액세스 가능한 속성을 즉시 참조할 수 있습니다  
+그러나 Fragment의 View 객체는 Fragment#onCreateView를 호출하기 전까지는 확장 준비가 되지 않으므로 View의 속성 초기화를 연기할 방법이 필요합니다.
+
+lateinit으로 속성 초기화를 연기할 수 있습니다. lateinit을 사용할 때는 최대한 빨리 속성을 초기화해야 합니다.
+
+```kotlin
+class LoginFragment : Fragment() {
+
+    private lateinit var usernameEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var loginButton: Button
+    private lateinit var statusTextView: TextView
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        usernameEditText = view.findViewById(R.id.username_edit_text)
+        passwordEditText = view.findViewById(R.id.password_edit_text)
+        loginButton = view.findViewById(R.id.login_button)
+        statusTextView = view.findViewById(R.id.status_text_view)
+    }
+
+    ...
+}
+```
